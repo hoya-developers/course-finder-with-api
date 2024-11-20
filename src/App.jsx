@@ -2,17 +2,17 @@ import { useState, useEffect } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
-import courseData from "./courseData.json";
 import Course from "./Course";
 
 function App() {
-  const [courses, setCourses] = useState(courseData);
+  const [unfilteredCourses, setUnfilteredCourses] = useState([]);
+  const [courses, setCourses] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showOnlyAvailableCourses, setShowOnlyAvailableCourses] =
     useState(false);
 
   useEffect(() => {
-    const results = courseData.filter((course) => {
+    const results = unfilteredCourses.filter((course) => {
       if (showOnlyAvailableCourses && course.seatsAvailable === 0) {
         return false;
       }
@@ -28,7 +28,25 @@ function App() {
       return false;
     });
     setCourses(results);
-  }, [searchTerm, showOnlyAvailableCourses]);
+  }, [searchTerm, showOnlyAvailableCourses, unfilteredCourses]);
+
+
+
+  const fetchCourses = async () => {
+    const response = await fetch("https://www.hoyadevelopers.com/api/getCourseData", {
+      headers: {
+        "Content-Type": "text/plain",
+      }
+    })
+
+    const data = await response.json();
+    setUnfilteredCourses(data);
+  }
+
+  useEffect(() => {
+    fetchCourses();
+  }
+  , []);
 
   return (
     <div>
